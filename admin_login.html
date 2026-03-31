@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="mr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TF ESPORTS | Admin Control</title>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
+    <style>
+        :root { --neon: #39FF14; --bg: #050505; }
+        body { font-family: sans-serif; background: var(--bg); color: white; padding: 20px; text-align: center; }
+        input { width: 80%; padding: 12px; margin: 10px 0; border-radius: 5px; background: #222; color: #fff; border: 1px solid #444; }
+        .btn { background: var(--neon); color: black; padding: 12px 30px; border: none; font-weight: bold; cursor: pointer; border-radius: 5px; }
+        .player-box { background: #111; border-left: 4px solid var(--neon); padding: 10px; margin: 10px 0; text-align: left; font-size: 14px; }
+    </style>
+</head>
+<body>
+
+<h1 style="color: var(--neon);">ADMIN PANEL</h1>
+
+<div id="login-box">
+    <input type="password" id="pass" placeholder="Enter Admin Password">
+    <button class="btn" onclick="checkPass()">LOGIN</button>
+</div>
+
+<div id="control-panel" style="display:none;">
+    <h3>Create New Match</h3>
+    <input type="text" id="mName" placeholder="Match Name">
+    <input type="text" id="mFee" placeholder="Entry Fee">
+    <input type="text" id="mPrize" placeholder="Prize Pool">
+    <input type="text" id="mIdp" placeholder="ID & Password (IDP)">
+    <button class="btn" onclick="addMatch()">POST MATCH</button>
+    <hr>
+    <h3>Registered Players List</h3>
+    <div id="player-list"></div>
+</div>
+
+<script>
+    const firebaseConfig = {
+        apiKey: "AIzaSyCZBbvexesf4yv2LYGr-H4WxDHcbp8PlkY",
+        authDomain: "tf-esports-c337f.firebaseapp.com",
+        projectId: "tf-esports-c337f",
+        databaseURL: "https://tf-esports-c337f-default-rtdb.firebaseio.com/",
+        storageBucket: "tf-esports-c337f.firebasestorage.app",
+        messagingSenderId: "1035662946197",
+        appId: "1:1035662946197:web:e795103f16a12c80ab509c"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+
+    function checkPass() {
+        if(document.getElementById('pass').value === "tf123") {
+            document.getElementById('login-box').style.display = "none";
+            document.getElementById('control-panel').style.display = "block";
+            loadPlayers();
+        } else { alert("Chuki cha password!"); }
+    }
+
+    function addMatch() {
+        const name = document.getElementById('mName').value;
+        const fee = document.getElementById('mFee').value;
+        const prize = document.getElementById('mPrize').value;
+        const idp = document.getElementById('mIdp').value;
+        db.ref('matches').push({ name, fee, prize, idp });
+        alert("Match Live Zali!");
+    }
+
+    function loadPlayers() {
+        db.ref('registrations').on('value', (snap) => {
+            const list = document.getElementById('player-list');
+            list.innerHTML = "";
+            snap.forEach((child) => {
+                const p = child.val();
+                list.innerHTML += `
+                    <div class="player-box">
+                        <b>IGN:</b> ${p.ign} | <b>UID:</b> ${p.uid} <br>
+                        <small>Match ID: ${p.matchId} | Time: ${p.time}</small>
+                    </div>
+                `;
+            });
+        });
+    }
+</script>
+</body>
+</html>
